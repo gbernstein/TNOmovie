@@ -31,6 +31,7 @@ tnodetect['DEC_DET'].name = 'DEC'
 
 class Dot:
     '''TNO detections to be drawn on top of Orbits'''
+    
     def __init__(self, tno, number):
         self.tno = tno # the TNO to which this Dot belongs
         self.number = number # the index in list of this TNO's Dots
@@ -56,8 +57,8 @@ class Dot:
         # tdb: the time of the frame i'm drawing right now (comes from a 'clock' value in the orbit class)
         age = (tdb - self.tdb0)
         # increasing either of these makes fade and shrink effect happen more quickly
-        fadetime = 4
-        shrinktime = 45
+        fadetime = 4 #Dot.fadetime = 6
+        shrinktime = 45 
         if age < 0: # detection has not occured yet
             return
         if age >= 0: # detection has occured
@@ -85,7 +86,7 @@ class Dot:
                 self.lastdrawn[0].set_xdata([])
                 self.lastdrawn[0].set_ydata([])
             alpha = max(0.3, (1 - (age * fadetime)))
-            marker = max(6, (10 - (age * shrinktime)))
+            marker = max(1, (5 - (age * shrinktime)))
             # plot the Dot with the appropriate size and opacity according to its age
             rapix, decpix = wcs.all_world2pix(self.coords[0], self.coords[1], 0)
             pixcoords = (rapix, decpix)
@@ -149,7 +150,7 @@ class Orbit:
         #     (122*tdbspan = update position ~once every 3 days)
         #   - for Observer drawing, where the camera leaves earth and zooms out, interval should be even smaller!
         # ** this should be an argument in a function instead so it's easier to keep track of ** #
-        interval = 300 * tdbspan
+        interval = 70 * tdbspan
         t_ps, astrotimes, clocktimes, displaytimes, earth_pos, tno_pos, clocktimesval = [], [], [], [], [], [], []
         varyelement = np.zeros([int(interval)+1,6])
         
@@ -162,6 +163,7 @@ class Orbit:
             astrotimes.append(astropy.time.Time(((2016.0001+(2016-tdbstart))+((tdbspan/(interval)*j))), format='decimalyear', scale='tdb'))
             clocktimes.append(astropy.time.Time(((2016.0001-(2016-tdbstart))+((tdbspan/(interval)*j))), format='decimalyear', scale='tdb'))
             displaytimes.append(clocktimes[j].utc.iso[0:10]) # clocktimes but in calendar format (ex '2016-01-01')
+            clocktimesval.append(clocktimes[j].value)
             
             # get earth's cartesian coordinates
             earths = get_body_barycentric('earth', Time(astrotimes[j]))
@@ -235,13 +237,12 @@ class Orbit:
         ydata.append(y)
         points.set_data(xdata, ydata)
         return points
-
     
     
 def getPlanetPos(planets, start, span):
     '''function which grabs planet positions from astropy'''
     #coordinate intervals with that in the Observer (+ Orbit) ** room for improvement!! **
-    inter = 300
+    inter = 70
     interval = span*inter  
     #prepare the times and get positions at those times
     astrotimes, planets_pos = [], []

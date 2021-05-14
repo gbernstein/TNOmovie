@@ -9,6 +9,7 @@ from astropy.io import fits
 from astropy.time import Time
 from astropy.coordinates import solar_system_ephemeris, EarthLocation, get_body_barycentric, SkyCoord
 # import others
+import math
 import numpy as np
 import transformation as tr
 import matplotlib.pyplot as pl
@@ -28,9 +29,9 @@ class Observer:
                   which is why adding to z impacts y. Hence, y_add
                   (see below)''' 
         self.p_factor = parallax_factor
-        self.z_add = z_add + (self.p_factor*math.sin(23.5)) 
-        self.y_add = z_add*(-1/2) - (self.p_factor*math.cos(23.5))
-        self.inter = 300 # *** should match with Orbit's interval value!! again, room for improvement ***
+        self.z_add = z_add + (self.p_factor*math.sin(23.5)) #cos(23.5) #remove p_factor
+        self.y_add = z_add*(-1/2) - (self.p_factor*math.cos(23.5)) #sin(23.5) #remove p_factor
+        self.inter = 70 # *** should match with Orbit's interval value!! again, room for improvement ***
 
     def getPositions(self, start, span):
         '''prepares a list of Observer positions over given time period'''
